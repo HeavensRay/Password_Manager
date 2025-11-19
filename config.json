@@ -1,8 +1,7 @@
 {
-    "ready": "False",
     "user": "postgres",
-    "password" : "securePass",
+    "password" : "", 
     "host": "127.0.0.1",
-    "port": "8080",
-    "database": "test" 
+    "port": "5432",
+    "database": "postgres" 
 }

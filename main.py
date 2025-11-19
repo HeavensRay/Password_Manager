@@ -27,6 +27,7 @@ def create_master():
         new_master(mp_user, db_hash, salt_KDF)
     except Exception as e:
         print("Database rejected master. Keep in mind master name must be unique" ) 
+        return
 
     print(f"Master {mp_user} successfully added!")
     set_ready()

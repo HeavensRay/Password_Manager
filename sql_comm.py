@@ -2,13 +2,14 @@ import psycopg
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from table_obj import User, Master, Base
-import binascii
+from initialize import connection_parameters
 
-user = 'postgres'
-password = 'securePass'
-host = '127.0.0.1'
-port = 8080
-database = 'test' # 'postgres'
+config = connection_parameters()
+user = config['user']
+password = config['password']
+host = config['host']
+port = config['port']
+database = config['database'] # 'postgres'
 
 def get_connection():
     return create_engine(
