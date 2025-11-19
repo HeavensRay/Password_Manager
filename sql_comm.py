@@ -1,14 +1,14 @@
 import psycopg
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
-from table_obj import User, Master
+from table_obj import User, Master, Base
 import binascii
 
 user = 'postgres'
 password = 'securePass'
 host = '127.0.0.1'
 port = 8080
-database = 'postgres'
+database = 'test' # 'postgres'
 
 def get_connection():
     return create_engine(
@@ -21,6 +21,7 @@ def get_connection():
 try:
     engine = get_connection()
     engine.connect()
+    Base.metadata.create_all(engine)
     session = Session(bind=engine)
 except Exception as e:
     print("Connection to database failed \n", e)
@@ -74,14 +75,13 @@ def get_master_info(master_name):
 def new_master(master_name, hashs, kdf_salt):
     global session
     tester = Master(username=master_name, verify_hash = hashs, kdf_salt=kdf_salt)
-
-    print(hashs)
     session.add(tester)
 
     try:
         session.commit()
     except Exception as e:
-        print("Database rejected master. Keep in mind master name must be unique" )
+        raise e
+
 
 def exit_db():
     global session

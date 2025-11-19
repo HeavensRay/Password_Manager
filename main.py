@@ -2,9 +2,43 @@ from userpass_handle import argon_KDF, public_key, verify_master
 from sql_comm import add_user, get_user_data, alter_password, drop_user, exit_db, get_master_info, new_master
 from Crypto.Random import get_random_bytes
 from encrypt_decrypt import encrypt_DEK, decrypt_DEK
+from initialize import is_it_ready, set_ready
 
 def command_explained():
     print("Command types \n -c create new user \n -p show userpassword \n -a alter/change password \n -d delete user \n -m create new master \n -e exit")
+
+def create_master():
+    
+    mp_user = input("What will new masters name be? ")
+    mp_ask = input(f"Please enter {mp_user}'s password ")
+
+    master_password = mp_ask.encode("utf-8") #to bytes |masterPass
+    salt_KDF = get_random_bytes(16) #salt for encrypt/decryp
+    db_hash = public_key(master_password)
+
+    ask_again = input(f"Please enter {mp_user}'s password again ")
+    ask_bytes = ask_again.encode("utf-8")
+    try:
+        verify_master(password=ask_bytes, db_hash=db_hash)
+    except Exception as e:
+        print("Passwords don't match. Terminated. Returning to menu")    
+        return
+    try:
+        new_master(mp_user, db_hash, salt_KDF)
+    except Exception as e:
+        print("Database rejected master. Keep in mind master name must be unique" ) 
+
+    print(f"Master {mp_user} successfully added!")
+    set_ready()
+
+
+ready = is_it_ready()
+if ready == False:
+    create_master()
+    print("Please relaunch the program and re-enter master credentials ")
+    exit()
+
+    
 
 mp_user = input("Who are you???? ")
 mp_ask = input("Please enter master password ")
@@ -140,30 +174,5 @@ def delete_user():
 
     drop_user(username)
 
-def create_master():
-    
-    mp_user = input("What will new masters name be? ")
-    mp_ask = input(f"Please enter {mp_user}'s password ")
-
-    master_password = mp_ask.encode("utf-8") #to bytes |masterPass
-    salt_KDF = get_random_bytes(16) #salt for encrypt/decryp
-    db_hash = public_key(master_password)
-
-    ask_again = input(f"Please enter {mp_user}'s password again ")
-    ask_bytes = ask_again.encode("utf-8")
-    try:
-        verify_master(password=ask_bytes, db_hash=db_hash)
-    except Exception as e:
-        print("Passwords don't match. Terminated. Returning to menu")    
-        return
-    
-    new_master(mp_user, db_hash, salt_KDF)
-    print(f"Master {mp_user} successfully added!")
-
-
 if __name__ == "__main__":
     main()
-
-# usr keydata = new keydata not working
-
-# do a hash encode and store it in secret w the salt lowlevel argon 
